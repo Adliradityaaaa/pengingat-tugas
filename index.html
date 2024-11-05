@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengingat Tugas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Pengingat Tugas</h1>
+    
+    <form id="task-form">
+        <label for="task-name">Nama Tugas:</label>
+        <input type="text" id="task-name" required><br><br>
+
+        <label for="task-deadline">Deadline Tugas:</label>
+        <input type="datetime-local" id="task-deadline" required><br><br>
+
+        <button type="submit">Tambahkan Tugas</button>
+    </form>
+
+    <ul id="task-list"></ul>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Meminta izin notifikasi
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            // Menambah tugas ke list
+            document.getElementById("task-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const taskName = document.getElementById("task-name").value;
+                const taskDeadline = new Date(document.getElementById("task-deadline").value);
+
+                const taskItem = document.createElement("li");
+                taskItem.textContent = `${taskName} - Deadline: ${taskDeadline.toLocaleString()}`;
+                document.getElementById("task-list").appendChild(taskItem);
+
+                // Set timer untuk notifikasi
+                const timeToNotification = taskDeadline - new Date();
+                if (timeToNotification > 0) {
+                    setTimeout(() => {
+                        showNotification(taskName);
+                    }, timeToNotification);
+                } else {
+                    alert("Deadline harus di masa depan!");
+                }
+
+                document.getElementById("task-form").reset();
+            });
+        });
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(taskName) {
+            if (Notification.permission === "granted") {
+                new Notification("Pengingat Tugas", {
+                    body: `Sudah waktunya mengerjakan: ${taskName}!`,
+                    icon: "https://via.placeholder.com/100"
+                });
+            }
+        }
+    </script>
+</body>
+</html>
